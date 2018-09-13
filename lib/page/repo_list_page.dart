@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
+import 'dart:io';
 import 'package:github/model/repository.dart';
 import 'package:github/net/github_api.dart';
+import 'package:github/page/login_page.dart';
 
 class RepositoryListPage extends StatefulWidget {
   @override
   State<StatefulWidget> createState() => RepositoryListPageState();
 }
+
+enum MenuItems { LoginOut, ExitApp }
 
 class RepositoryListPageState extends State<RepositoryListPage> {
   List<Repository> items = List();
@@ -30,7 +34,32 @@ class RepositoryListPageState extends State<RepositoryListPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(title: Text("Fultter Github")),
+        appBar: AppBar(
+          title: Text("Fultter Github"),
+          actions: <Widget>[
+            PopupMenuButton(
+              onSelected: (MenuItems item) {
+                switch (item) {
+                  case MenuItems.LoginOut:
+
+                    //这里需要删除 token
+
+                    Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) {
+                      return LoginPage();
+                    }));
+                    break;
+                  case MenuItems.ExitApp:
+                    exit(0);
+                    break;
+                }
+              },
+              itemBuilder: (BuildContext context) => <PopupMenuEntry<MenuItems>>[
+                    const PopupMenuItem(value: MenuItems.LoginOut, child: Text("登出账号")),
+                    const PopupMenuItem(value: MenuItems.ExitApp, child: Text("退出应用"))
+                  ],
+            )
+          ],
+        ),
         body: Column(
           children: <Widget>[
             Offstage(
@@ -44,10 +73,7 @@ class RepositoryListPageState extends State<RepositoryListPage> {
                         itemCount: items.length,
                         itemBuilder: (context, index) {
                           return Column(
-                            children: <Widget>[
-                              ListTile(title: Text(items[index].name)),
-                              Divider()
-                            ],
+                            children: <Widget>[ListTile(title: Text(items[index].name)), Divider()],
                           );
                         }),
                     onRefresh: uploadData)),

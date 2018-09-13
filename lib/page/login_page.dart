@@ -8,9 +8,7 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: LoginPage()
-    );
+    return MaterialApp(home: LoginPage());
   }
 }
 
@@ -33,29 +31,41 @@ class LoginPageState extends State<LoginPage> {
         body: Center(
           child: Padding(
             padding: EdgeInsets.all(20.0),
-            child: Column(
-              children: <Widget>[
-                TextField(
-                  controller: emailController,
-                  decoration: InputDecoration(labelText: "邮箱"),
-                ),
-                TextField(
-                  controller: passwordController,
-                  obscureText: true,
-                  decoration: InputDecoration(labelText: "密码"),
-                ),
-                Builder(
-                    builder: (context) => RaisedButton(
-                        child: Text("登录"),
-                        onPressed: () {
-                          login(context);
-                        })),
-                Offstage(
-                  offstage: !loading,
-                  child: CircularProgressIndicator(),
-                )
-              ],
-            ),
+            child: Column(children: <Widget>[
+              TextField(
+                controller: emailController,
+                keyboardType: TextInputType.emailAddress,
+                decoration: InputDecoration(labelText: "邮箱"),
+              ),
+              TextField(
+                controller: passwordController,
+                obscureText: true,
+                decoration: InputDecoration(labelText: "密码"),
+              ),
+              Padding(padding: EdgeInsets.all(10.0)),
+              Stack(
+                children: <Widget>[
+                  Center(
+                    child: Builder(
+                        builder: (context) => RaisedButton(
+                            child: Text("登录"),
+                            onPressed: () {
+                              FocusScope.of(context).requestFocus(new FocusNode());
+                              login(context);
+                            })),
+                  ),
+                  Align(
+                      alignment: FractionalOffset.centerRight,
+                      child: Offstage(
+                        offstage: !loading,
+                        child: Padding(
+                          padding: EdgeInsets.fromLTRB(0.0, 5.0, 0.0, 0.0),
+                          child: CircularProgressIndicator(),
+                        ),
+                      )),
+                ],
+              ),
+            ]),
           ),
         ));
   }
@@ -67,9 +77,16 @@ class LoginPageState extends State<LoginPage> {
   }
 
   void login(BuildContext context) {
-    setLoading(true);
+    var email = emailController.text;
+    var password = passwordController.text;
 
-    GithubApi().login(emailController.text, passwordController.text).then((data) {
+    if (email.isEmpty || password.isEmpty) {
+      Scaffold.of(context).showSnackBar(SnackBar(content: Text("邮箱密码不能为空")));
+      return;
+    }
+
+    setLoading(true);
+    GithubApi().login(email, password).then((data) {
       setLoading(false);
       if (data.error != null) {
         Scaffold.of(context).showSnackBar(SnackBar(content: Text(data.error.message)));
