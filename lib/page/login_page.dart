@@ -44,6 +44,7 @@ class LoginPageState extends State<LoginPage> {
                 ),
                 TextField(
                   controller: passwordController,
+                  obscureText: true,
                   decoration: InputDecoration(labelText: "密码"),
                 ),
                 Builder(
@@ -77,7 +78,7 @@ class LoginPageState extends State<LoginPage> {
         Scaffold.of(context).showSnackBar(SnackBar(content: Text(data.error.message)));
         return;
       }
-      Navigator.of(context).pushNamed("repo_list_page");
+      Navigator.of(context).pushReplacementNamed("repo_list_page");
 
 //      GithubApi().fetchSelfRepositories().then((data) {
 //        setLoading(false);
