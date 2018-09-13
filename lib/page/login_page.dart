@@ -9,10 +9,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: LoginPage(),
-      routes: <String, WidgetBuilder>{
-        "repo_list_page": (BuildContext context) => RepositoryListPage(),
-      },
+      home: LoginPage()
     );
   }
 }
@@ -78,20 +75,9 @@ class LoginPageState extends State<LoginPage> {
         Scaffold.of(context).showSnackBar(SnackBar(content: Text(data.error.message)));
         return;
       }
-      Navigator.of(context).pushReplacementNamed("repo_list_page");
-
-//      GithubApi().fetchSelfRepositories().then((data) {
-//        setLoading(false);
-//        if (data.error != null) {
-//          Scaffold.of(context).showSnackBar(SnackBar(content: Text(data.error.message)));
-//        } else {
-//          String repos = "";
-//          data.data.forEach((repo) {
-//            repos += "${repo.name} \n";
-//          });
-//          Scaffold.of(context).showSnackBar(SnackBar(content: Text(repos)));
-//        }
-//      });
+      Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) {
+        return RepositoryListPage();
+      }));
     });
   }
 }
