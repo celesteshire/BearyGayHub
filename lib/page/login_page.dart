@@ -2,16 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:github/net/github_api.dart';
 import 'package:github/page/repo_list_page.dart';
 
-void main() => runApp(new MyApp());
-
-class MyApp extends StatelessWidget {
-  // This widget is the root of your application.
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(home: LoginPage());
-  }
-}
-
 class LoginPage extends StatefulWidget {
   @override
   State<StatefulWidget> createState() => LoginPageState();
@@ -89,7 +79,8 @@ class LoginPageState extends State<LoginPage> {
     GithubApi().login(email, password).then((data) {
       setLoading(false);
       if (data.error != null) {
-        Scaffold.of(context).showSnackBar(SnackBar(content: Text(data.error.message)));
+        Scaffold.of(context)
+            .showSnackBar(SnackBar(content: Text(data.error.message)));
         return;
       }
       Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) {

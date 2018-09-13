@@ -4,6 +4,7 @@ import 'dart:async';
 import 'package:dio/dio.dart';
 import 'package:github/model/repository.dart';
 import 'package:github/model/result_data.dart';
+import 'package:github/utils/storage.dart';
 
 class GithubApi {
   static final GithubApi _singleton = new GithubApi._init();
@@ -23,12 +24,18 @@ class GithubApi {
 
   static Options _option = Options();
 
+  setAuth(String auth) {
+    _option.headers["Authorization"] = auth;
+  }
+
   //验证用户名和密码
   Future<ResultData> login(String email, String password) async {
     try {
       String credentials = email + ":" + password;
       var bytes = utf8.encode(credentials);
-      _option.headers["Authorization"] = "Basic " + base64.encode(bytes);
+      final authorization = "Basic " + base64.encode(bytes);
+      Storage.save(BasicAuthKey, authorization);
+      _option.headers["Authorization"] = authorization;
 
       var response = await _dio.get("/user", options: _option);
       return ResultData(response, null);
@@ -52,6 +59,7 @@ class GithubApi {
         rep.description = repo["description"];
         rep.language = repo["language"];
         rep.starCount = repo["stargazers_count"];
+        rep.htmlUrl = repo["html_url"];
         Owner owner = Owner();
         owner.name = (repo['owner'] as Map)["login"];
         owner.avatarUrl = (repo['owner'] as Map)["avatar_url"];
