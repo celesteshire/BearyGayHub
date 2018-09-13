@@ -3,7 +3,9 @@ import 'dart:async';
 import 'dart:io';
 import 'package:github/model/repository.dart';
 import 'package:github/net/github_api.dart';
-import 'package:github/page/login_page.dart';
+import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
+import 'package:github/utils/storage.dart';
+import 'package:github/utils/router.dart';
 
 class RepositoryListPage extends StatefulWidget {
   @override
@@ -41,12 +43,8 @@ class RepositoryListPageState extends State<RepositoryListPage> {
               onSelected: (MenuItems item) {
                 switch (item) {
                   case MenuItems.LoginOut:
-
-                    //这里需要删除 token
-
-                    Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) {
-                      return LoginPage();
-                    }));
+                    Storage.remove(BasicAuthKey);
+                    Navigator.pushReplacementNamed(context, LoginPageRouteName);
                     break;
                   case MenuItems.ExitApp:
                     exit(0);
@@ -64,7 +62,10 @@ class RepositoryListPageState extends State<RepositoryListPage> {
           children: <Widget>[
             Offstage(
               offstage: !loading,
-              child: Column(children: <Widget>[Padding(padding: EdgeInsets.all(10.0)), CircularProgressIndicator()]),
+              child: Column(children: <Widget>[
+                Padding(padding: EdgeInsets.all(10.0)),
+                CircularProgressIndicator()
+              ]),
             ),
             Expanded(
                 child: RefreshIndicator(
@@ -73,7 +74,22 @@ class RepositoryListPageState extends State<RepositoryListPage> {
                         itemCount: items.length,
                         itemBuilder: (context, index) {
                           return Column(
-                            children: <Widget>[ListTile(title: Text(items[index].name)), Divider()],
+                            children: <Widget>[
+                              ListTile(
+                                title: Text(items[index].name),
+                                onTap: () {
+                                  Navigator.of(context)
+                                      .push(MaterialPageRoute(builder: (_) {
+                                    return WebviewScaffold(
+                                      url: items[index].htmlUrl,
+                                      appBar: AppBar(
+                                          title: Text(items[index].name)),
+                                    );
+                                  }));
+                                },
+                              ),
+                              Divider()
+                            ],
                           );
                         }),
                     onRefresh: uploadData)),
